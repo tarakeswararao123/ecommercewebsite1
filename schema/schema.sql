@@ -18,13 +18,20 @@ CREATE TABLE users (
     
 
 );
-CREATE TABLE rating_review (
-  rate_id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT,
-  ratings_reviews JSON,
-  FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
+-- CREATE TABLE rating_review (
+--   rate_id INT PRIMARY KEY AUTO_INCREMENT,
+--   user_id INT,
+--   ratings_reviews JSON,
+--   FOREIGN KEY (user_id) REFERENCES users(user_id)
+-- );
 
+CREATE TABLE rating_review (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_name VARCHAR(255) NOT NULL,
+  rating INT NOT NULL,
+  review TEXT NOT NULL
+);
 
 -- CREATE DATABASE myecommerce;
 -- USE myecommerce;

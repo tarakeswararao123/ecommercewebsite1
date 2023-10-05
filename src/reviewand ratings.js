@@ -13,54 +13,83 @@ app.use(bodyParser.json());
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-app.post('/review', (req, res) => {
-    const { user_id, product_name, rating, review } = req.body;
+// app.post('/review', (req, res) => {
+//     const { user_id, product_name, rating, review } = req.body;
   
     // Assuming you have already validated and authenticated the user
   
-    // First, fetch the existing ratings_reviews JSON from the database
-    const fetchSql = 'SELECT rating_review FROM rating_review WHERE user_id = ? AND product_name = ?';
-    connect.query(fetchSql, [user_id, product_name], (fetchErr, fetchResults) => {
-      if (fetchErr) {
-        console.error('Error fetching existing ratings_reviews: ' + fetchErr.message);
-        res.status(500).json({ message: 'Error fetching existing ratings_reviews' });
-        return;
-      }
+//     // First, fetch the existing ratings_reviews JSON from the database
+//     const fetchSql = 'SELECT rating_review FROM rating_review WHERE user_id = ? AND product_name = ?';
+//     connect.query(fetchSql, [user_id, product_name], (fetchErr, fetchResults) => {
+//       if (fetchErr) {
+//         console.error('Error fetching existing ratings_reviews: ' + fetchErr.message);
+//         res.status(500).json({ message: 'Error fetching existing ratings_reviews' });
+//         return;
+//       }
   
-      let existingRatingsReviews = [];
-      if (fetchResults.length > 0) {
-        // If there are existing ratings_reviews, parse it from JSON
-        existingRatingsReviews = JSON.parse(fetchResults[0].ratings_reviews);
-      }
+//       let existingRatingsReviews = [];
+//       if (fetchResults.length > 0) {
+//         // If there are existing ratings_reviews, parse it from JSON
+//         existingRatingsReviews = JSON.parse(fetchResults[0].ratings_reviews);
+//       }
   
-      // Add the new rating and review to the existing array
-      existingRatingsReviews.push({ rating, review });
+//       // Add the new rating and review to the existing array
+//       existingRatingsReviews.push({ rating, review });
   
-      // Convert the updated array back to JSON
-      const updatedRatingsReviews = JSON.stringify(existingRatingsReviews);
+//       // Convert the updated array back to JSON
+//       const updatedRatingsReviews = JSON.stringify(existingRatingsReviews);
   
-      // Update the database with the updated ratings_reviews
-      const updateSql = 'UPDATE rating_review SET ratings_reviews = ? WHERE user_id = ? AND product_name = ?';
-      connect.query(updateSql, [updatedRatingsReviews, user_id, product_name], (updateErr, updateResult) => {
-        if (updateErr) {
-          console.error('Error updating ratings_reviews: ' + updateErr.message);
-          res.status(500).json({ message: 'Error updating ratings_reviews' });
-          return;
-        }
+//       // Update the database with the updated ratings_reviews
+//       const updateSql = 'UPDATE rating_review SET ratings_reviews = ? WHERE user_id = ? AND product_name = ?';
+//       connect.query(updateSql, [updatedRatingsReviews, user_id, product_name], (updateErr, updateResult) => {
+//         if (updateErr) {
+//           console.error('Error updating ratings_reviews: ' + updateErr.message);
+//           res.status(500).json({ message: 'Error updating ratings_reviews' });
+//           return;
+//         }
   
-        // Check if the update was successful
-        if (updateResult.affectedRows > 0) {
-          res.status(201).json({ message: 'Review and rating posted successfully' });
-        } else {
-          res.status(404).json({ message: 'User or product not found' });
-        }
-      });
-    });
-  });
+//         // Check if the update was successful
+//         if (updateResult.affectedRows > 0) {
+//           res.status(201).json({ message: 'Review and rating posted successfully' });
+//         } else {
+//           res.status(404).json({ message: 'User or product not found' });
+//         }
+//       });
+//     });
+//   });
   
 
-  
-// ratings.post('/rating-review',async(req,res)=>{
+app.post('/review', (req, res) => {
+  const { user_id, product_name, rating, review } = req.body;
+  // Assuming you have already validated and authenticated the user
+  // First, fetch the existing ratings_reviews JSON from the database
+  const fetchSql = 'SELECT rating_review FROM rating_review WHERE user_id = ? AND product_name = ?';
+  connect.query(fetchSql, [user_id, product_name], (fetchErr, fetchResults) => {
+    if (fetchErr) {
+      console.error('Error fetching existing ratings_reviews: ' + fetchErr.message);
+      res.status(500).json({ message: 'Error fetching existing ratings_reviews' });
+      return;
+    }
+    // Check if the user has already reviewed the product
+    if (fetchResults.length > 0) {
+      res.status(400).json({ message: 'User has already reviewed this product' });
+      return;
+    }
+    // Insert the new review into the database
+    const insertSql = 'INSERT INTO rating_review (user_id, product_name, rating, review) VALUES (?, ?, ?, ?)';
+    connect.query(insertSql, [user_id, product_name, rating, review], (insertErr, insertResults) => {
+      if (insertErr) {
+        console.error('Error inserting new review: ' + insertErr.message);
+        res.status(500).json({ message: 'Error inserting new review' });
+        return;
+      }
+      // Send a 201 Created status code and the review object back to the client
+      res.status(201).json({ message: 'Review added successfully' });
+    });
+  });
+});
+ 
+// // ratings.post('/rating-review',async(req,res)=>{
 //     try{
 //         const {user_id, ratings_reviews } = req.body;
 //         const sql = 'INSERT INTO onelove.rating_review(user_id, ratings_reviews) VALUES(?, ?)';

@@ -11,8 +11,37 @@ const app = express();
 // Middleware for parsing JSON requests
 app.use(bodyParser.json());
 
+
+
+const verifyAccessToken = (request, response, next) => {
+    let jwtToken = null;
+    const header = request.headers["authorization"];
+    if (header !== undefined) {
+        jwtToken = header.split(" ")[1];
+    }
+    if (jwtToken === undefined) {
+        response.status(401);
+        response.send("Invalid Access Token");
+    } else {
+        jwt.verify(jwtToken, "token", async (error, payload) => {
+            if (error) {
+                response.status(401);
+                response.send("Invalid Access Token");
+            } else {
+                next();
+            }
+        });
+    }
+};
+
+
+
+
+
+
+
 // Create a product (Create operation)
-app.post('/api/products', (req, res) => {
+app.post('/api/products',  (req, res) => {
     const { product_name, description, product_category, product_price, product_image } = req.body;
     const sql = 'INSERT INTO products (product_name, description, product_category, product_price, product_image) VALUES (?, ?, ?, ?, ?)';
     connect.query(sql, [product_name, description, product_category, product_price, product_image], (err, result) => {
@@ -27,7 +56,7 @@ app.post('/api/products', (req, res) => {
 
 
 // Fetch product details (Read operation)
-app.get('/api/products/:product_id', (req, res) => {
+app.get('/api/products/:product_id', verifyAccessToken, (req, res) => {
     const productId = req.params.product_id;
     const sql = 'SELECT * FROM products WHERE product_id = ?';
     connect.query(sql, [productId], (err, results) => {

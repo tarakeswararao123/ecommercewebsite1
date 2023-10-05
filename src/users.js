@@ -5,51 +5,11 @@ app.use(express.json())
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { request } = require('../app');
+const nodemailer = require('nodemailer');
 
-const verifyAccessToken = (request, response, next) => {
-    let jwtToken = null;
-    const header = request.headers["authorization"];
-    if (header !== undefined) {
-        jwtToken = header.split(" ")[1];
-    }
-    if (jwtToken === undefined) {
-        response.status(401);
-        response.send("Invalid Access Token");
-    } else {
-        jwt.verify(jwtToken, "token", async (error, payload) => {
-            if (error) {
-                response.status(401);
-                response.send("Invalid Access Token");
-            } else {
-                next();
-            }
-        });
-    }
-};
 
 // register API
-// app.post("/register", async (req, res) => {
-//     // console.log(req.body);
-//     const { id, name, username, password, gender, } = req.body;
-//     const hashedPassword = await bcrypt.hash(password, 15);
-//     const checkUserQuery = "SELECT * FROM users WHERE username = ?";
-//     const verifiedUser =  null;
-//     connect.query(checkUserQuery, [username], (err, result)=>{
-//         if(err){
-//             res.status(400)
-//         }else{
-//             console.log(result);
-//             if (result.length === 0) {
-//                 const createUserQuery = "INSERT INTO users ( id, name, username, password, gender, ) VALUES (?, ?, ?, ?, ?,?)";
-//                  connect.query(createUserQuery, [ id, name, username, hashedPassword, gender, ]);
-//                 res.status(201).send("User created successfully");
-//               } else {
-//                 res.status(400).send("The user name is already exists");
-//               }
-//         }
-//     });
 
-//   });
 app.post('/register', async (req, res) => {
     const { user_name, user_email, user_mobilenumber, user_password } = req.body;
     const hashedPassword = await bcrypt.hash(user_password, 15);
@@ -81,29 +41,6 @@ app.post('/register', async (req, res) => {
 
 
 // login api
-// app.post("/login", async (req, res) =>{
-//     const {username, password} =req.body;
-//     const checkUserQuery = "SELECT * FROM user WHERE username = ?";
-//     connect.query(checkUserQuery, [username],  async (err, result)=>{
-//         if(err){
-//             res.status(400)
-//         }else{
-//             if (result.length !== 0) {
-//                 // res.send("login succesfull")
-//                 const resultpassword = result[0].password
-//                 const verifypassword = await bcrypt.compare(password, resultpassword);
-//                 // console.log(verifypassword);
-//                 if(verifypassword) {
-//                     const payload = {username: username}
-//                     const jwttoken = jwt.sign(payload, "token");
-//                     res.send({jwttoken});
-//                 }
-//               } else {
-//                 res.status(400).send("The user name is already exists");
-//               }
-//         }
-//     });
-// })
 
 app.post("/login", async (req, res) => {
     const { user_mobilenumber, user_password } = req.body;
@@ -133,6 +70,55 @@ app.post("/login", async (req, res) => {
 
 
 
+
+// // Create a nodemailer transporter for sending emails
+// const transporter = nodemailer.createTransport({
+//     service: 'your_email_service_provider', // e.g., Gmail
+//     auth: {
+//       user: 'your_email@example.com',
+//       pass: 'your_email_password',
+//     },
+//   });
+  
+//   // Generate a random temporary password
+//   function generateRandomPassword() {
+//     // Implement your logic here to generate a secure random password.
+//     return 'newPassword123'; // Replace with your actual logic.
+//   }
+  
+//   // Route to handle password reset request
+//   app.post('/forgot-password', (req, res) => {
+//     const { email } = req.body;
+  
+//     // Generate a new temporary password
+//     const newPassword = generateRandomPassword();
+  
+//     // Update the user's password in the database
+//     db.run('UPDATE users SET password = ? WHERE email = ?', [newPassword, email], (err) => {
+//       if (err) {
+//         res.status(500).json({ error: err.message });
+//         return;
+//       }
+  
+//       // Send an email with the new temporary password
+//       const mailOptions = {
+//         from: 'your_email@example.com',
+//         to: email,
+//         subject: 'Password Reset',
+//         text: `Your new password is: ${newPassword}`,
+//       };
+  
+//       transporter.sendMail(mailOptions, (error, info) => {
+//         if (error) {
+//           res.status(500).json({ error: error.message });
+//           return;
+//         }
+  
+//         res.json({ message: 'Password reset email sent successfully' });
+//       });
+//     });
+//   });
+  
 
 
 module.exports = app;

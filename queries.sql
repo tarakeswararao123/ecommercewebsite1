@@ -21,14 +21,21 @@ CREATE TABLE users (
 
 
 
-CREATE TABLE rating_review (
-  rate_id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT,
-  product_name VARCHAR(255), -- Assuming the product_name is a string
-  ratings_reviews JSON,
-  FOREIGN KEY (user_id) REFERENCES users(user_id)
-);
+-- CREATE TABLE rating_review (
+--   rate_id INT AUTO_INCREMENT PRIMARY KEY,
+--   user_id INT,
+--   product_name VARCHAR(255), -- Assuming the product_name is a string
+--   ratings_reviews JSON,
+--   FOREIGN KEY (user_id) REFERENCES users(user_id)
+-- );
 
+CREATE TABLE rating_review (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  product_name VARCHAR(255) NOT NULL,
+  rating INT NOT NULL,
+  review TEXT NOT NULL
+);
 
 ALTER TABLE products
 ADD COLUMN product number INT;
