@@ -5,7 +5,7 @@ app.use(express.json())
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { request } = require('../app');
-const nodemailer = require('nodemailer');
+
 
 
 // register API
@@ -67,58 +67,5 @@ app.post("/login", async (req, res) => {
         }
     });
 });
-
-
-
-
-// // Create a nodemailer transporter for sending emails
-// const transporter = nodemailer.createTransport({
-//     service: 'your_email_service_provider', // e.g., Gmail
-//     auth: {
-//       user: 'your_email@example.com',
-//       pass: 'your_email_password',
-//     },
-//   });
-  
-//   // Generate a random temporary password
-//   function generateRandomPassword() {
-//     // Implement your logic here to generate a secure random password.
-//     return 'newPassword123'; // Replace with your actual logic.
-//   }
-  
-//   // Route to handle password reset request
-//   app.post('/forgot-password', (req, res) => {
-//     const { email } = req.body;
-  
-//     // Generate a new temporary password
-//     const newPassword = generateRandomPassword();
-  
-//     // Update the user's password in the database
-//     db.run('UPDATE users SET password = ? WHERE email = ?', [newPassword, email], (err) => {
-//       if (err) {
-//         res.status(500).json({ error: err.message });
-//         return;
-//       }
-  
-//       // Send an email with the new temporary password
-//       const mailOptions = {
-//         from: 'your_email@example.com',
-//         to: email,
-//         subject: 'Password Reset',
-//         text: `Your new password is: ${newPassword}`,
-//       };
-  
-//       transporter.sendMail(mailOptions, (error, info) => {
-//         if (error) {
-//           res.status(500).json({ error: error.message });
-//           return;
-//         }
-  
-//         res.json({ message: 'Password reset email sent successfully' });
-//       });
-//     });
-//   });
-  
-
 
 module.exports = app;

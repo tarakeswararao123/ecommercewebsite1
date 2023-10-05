@@ -15,9 +15,9 @@ app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 // app.post('/review', (req, res) => {
 //     const { user_id, product_name, rating, review } = req.body;
-  
-    // Assuming you have already validated and authenticated the user
-  
+
+// Assuming you have already validated and authenticated the user
+
 //     // First, fetch the existing ratings_reviews JSON from the database
 //     const fetchSql = 'SELECT rating_review FROM rating_review WHERE user_id = ? AND product_name = ?';
 //     connect.query(fetchSql, [user_id, product_name], (fetchErr, fetchResults) => {
@@ -26,19 +26,19 @@ app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 //         res.status(500).json({ message: 'Error fetching existing ratings_reviews' });
 //         return;
 //       }
-  
+
 //       let existingRatingsReviews = [];
 //       if (fetchResults.length > 0) {
 //         // If there are existing ratings_reviews, parse it from JSON
 //         existingRatingsReviews = JSON.parse(fetchResults[0].ratings_reviews);
 //       }
-  
+
 //       // Add the new rating and review to the existing array
 //       existingRatingsReviews.push({ rating, review });
-  
+
 //       // Convert the updated array back to JSON
 //       const updatedRatingsReviews = JSON.stringify(existingRatingsReviews);
-  
+
 //       // Update the database with the updated ratings_reviews
 //       const updateSql = 'UPDATE rating_review SET ratings_reviews = ? WHERE user_id = ? AND product_name = ?';
 //       connect.query(updateSql, [updatedRatingsReviews, user_id, product_name], (updateErr, updateResult) => {
@@ -47,7 +47,7 @@ app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 //           res.status(500).json({ message: 'Error updating ratings_reviews' });
 //           return;
 //         }
-  
+
 //         // Check if the update was successful
 //         if (updateResult.affectedRows > 0) {
 //           res.status(201).json({ message: 'Review and rating posted successfully' });
@@ -57,38 +57,38 @@ app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 //       });
 //     });
 //   });
-  
+
 
 app.post('/review', (req, res) => {
   const { user_id, product_name, rating, review } = req.body;
+
   // Assuming you have already validated and authenticated the user
-  // First, fetch the existing ratings_reviews JSON from the database
-  const fetchSql = 'SELECT rating_review FROM rating_review WHERE user_id = ? AND product_name = ?';
-  connect.query(fetchSql, [user_id, product_name], (fetchErr, fetchResults) => {
-    if (fetchErr) {
-      console.error('Error fetching existing ratings_reviews: ' + fetchErr.message);
-      res.status(500).json({ message: 'Error fetching existing ratings_reviews' });
+
+  // Insert the new review into the database
+  const insertSql = 'INSERT INTO rating_review (user_id, product_name, rating, review) VALUES (?, ?, ?, ?)';
+  connect.query(insertSql, [user_id, product_name, rating, review], (insertErr, insertResults) => {
+    if (insertErr) {
+      console.error('Error inserting new review: ' + insertErr.message);
+      res.status(500).json({ message: 'Error inserting new review' });
       return;
     }
-    // Check if the user has already reviewed the product
-    if (fetchResults.length > 0) {
-      res.status(400).json({ message: 'User has already reviewed this product' });
-      return;
-    }
-    // Insert the new review into the database
-    const insertSql = 'INSERT INTO rating_review (user_id, product_name, rating, review) VALUES (?, ?, ?, ?)';
-    connect.query(insertSql, [user_id, product_name, rating, review], (insertErr, insertResults) => {
-      if (insertErr) {
-        console.error('Error inserting new review: ' + insertErr.message);
-        res.status(500).json({ message: 'Error inserting new review' });
-        return;
-      }
-      // Send a 201 Created status code and the review object back to the client
-      res.status(201).json({ message: 'Review added successfully' });
-    });
+    
+    // If the insert was successful, you can include the inserted review data in the response
+    const insertedReview = {
+      id: insertResults.insertId, // Assuming you have an auto-incremented 'id' field
+      user_id,
+      product_name,
+      rating,
+      review,
+    };
+
+    // Send a 201 Created status code and the review object back to the client
+    res.status(201).json({ message: 'Review added successfully', review: insertedReview });
   });
 });
- 
+
+
+
 // // ratings.post('/rating-review',async(req,res)=>{
 //     try{
 //         const {user_id, ratings_reviews } = req.body;
@@ -123,7 +123,7 @@ app.post('/review', (req, res) => {
 //         if (existingRows.length > 0) {
 //             // If a row exists, fetch the existing JSON array
 //             const existingReviews = existingRows[0].ratings_reviews;
-            
+
 //             if (Array.isArray(existingReviews)) {
 //                 // If it's an array, concatenate the new data
 //                 updatedReviews = existingReviews.concat(ratings_reviews);
@@ -141,7 +141,7 @@ app.post('/review', (req, res) => {
 //                     return;
 //                 }
 //             }
-            
+
 //             // Update the JSON data in the database
 //             const updateQuery = 'UPDATE onelove.rating_review SET ratings_reviews = ? WHERE user_id = ?';
 //             const updateValues = [JSON.stringify(updatedReviews), user_id];
@@ -206,14 +206,14 @@ app.post('/review', (req, res) => {
 //      LEFT JOIN images i ON u.image_id = i.image_id
 //      LEFT JOIN service s ON u.service_id = s.service_id
 //      WHERE r.user_id = ?`;
- 
+
 //      const [result] = await db.query(sql,user_id);
 //      const ratingData = JSON.parse(JSON.stringify(result));
 //      res.status(200).json({
 //          ratingData,
 //          message: messages.SUCCESS_MESSAGE,
 //      });
- 
+
 //        }catch(err){
 //          console.error('Error fetching  data:', err);
 //          res.status(500).json({
