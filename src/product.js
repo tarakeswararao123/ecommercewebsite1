@@ -5,6 +5,8 @@ const connect = require('../dbconnection'); // Import the connect object
 const bodyParser = require('body-parser');
 const jwt = require("jsonwebtoken");
 const cors = require('cors');
+const Redis = require("ioredis");
+const redisClient = new Redis();
 
 // Create an Express app
 const app = express();
@@ -14,37 +16,64 @@ app.use(bodyParser.json());
 app.use(cors());
 
 
-const verifyAccessToken = (request, response, next) => {
-    const header = request.headers["authorization"];
+// const verifyAccessToken = (request, response, next) => {
+//     const header = request.headers["authorization"];
     
-    if (!header) {
-        response.status(401);
-        response.send("Invalid Access Token");
-        return;
-    }
+//     if (!header) {
+//         response.status(401);
+//         response.send("Invalid Access Token");
+//         return;
+//     }
     
-    const jwtToken = header.split(" ")[1];
+//     const jwtToken = header.split(" ")[1];
     
-    if (!jwtToken) {
-        response.status(401);
-        response.send("Invalid Access Token");
-        return;
-    }
+//     if (!jwtToken) {
+//         response.status(401);
+//         response.send("Invalid Access Token");
+//         return;
+//     }
 
-    jwt.verify(jwtToken, "token", (error, payload) => {
-        if (error) {
-            response.status(401);
-            response.send("Invalid Access Token");
-        } else {
-            // Token is valid, you can access payload data if needed.
-            // For example: const userId = payload.userId;
-            next();
-        }
-    });
-};
+//     jwt.verify(jwtToken, "token", (error, payload) => {
+//         if (error) {
+//             response.status(401);
+//             response.send("Invalid Access Token");
+//         } else {
+//             // Token is valid, you can access payload data if needed.
+//             // For example: const userId = payload.userId;
+//             next();
+//         }
+//     });
+// };
 
 
 // Create a product (Create operation)
+
+const verifyAccessToken = async (request, response, next) => {
+    let jwtToken = await redisClient.get("authorizationToken");
+    console.log(jwtToken);
+    // const header = request.headers["authorization"];
+    // if (header !== undefined) {
+    //   jwtToken = header.split(" ")[1];
+    // }
+    if (jwtToken === null) {
+      response.status(401);
+      response.send("Invalid Access Token");
+    } else {
+      jwt.verify(jwtToken, "token", async (error, playLoad) => {
+        if (error) {
+          response.status(401);
+          response.send("Invalid Access Token");
+        } else {
+          next();
+        }
+      });
+    }
+  };
+
+
+
+
+
 app.post('/api/products', verifyAccessToken, (req, res) => {
     const { product_name, description, product_category, product_price, product_image } = req.body;
     const sqlquery = 'INSERT INTO products (product_name, description, product_category, product_price, product_image) VALUES (?, ?, ?, ?, ?)';

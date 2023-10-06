@@ -13,51 +13,6 @@ app.use(bodyParser.json());
 app.use(express.json()); // To parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
-// app.post('/review', (req, res) => {
-//     const { user_id, product_name, rating, review } = req.body;
-
-// Assuming you have already validated and authenticated the user
-
-//     // First, fetch the existing ratings_reviews JSON from the database
-//     const fetchSql = 'SELECT rating_review FROM rating_review WHERE user_id = ? AND product_name = ?';
-//     connect.query(fetchSql, [user_id, product_name], (fetchErr, fetchResults) => {
-//       if (fetchErr) {
-//         console.error('Error fetching existing ratings_reviews: ' + fetchErr.message);
-//         res.status(500).json({ message: 'Error fetching existing ratings_reviews' });
-//         return;
-//       }
-
-//       let existingRatingsReviews = [];
-//       if (fetchResults.length > 0) {
-//         // If there are existing ratings_reviews, parse it from JSON
-//         existingRatingsReviews = JSON.parse(fetchResults[0].ratings_reviews);
-//       }
-
-//       // Add the new rating and review to the existing array
-//       existingRatingsReviews.push({ rating, review });
-
-//       // Convert the updated array back to JSON
-//       const updatedRatingsReviews = JSON.stringify(existingRatingsReviews);
-
-//       // Update the database with the updated ratings_reviews
-//       const updateSql = 'UPDATE rating_review SET ratings_reviews = ? WHERE user_id = ? AND product_name = ?';
-//       connect.query(updateSql, [updatedRatingsReviews, user_id, product_name], (updateErr, updateResult) => {
-//         if (updateErr) {
-//           console.error('Error updating ratings_reviews: ' + updateErr.message);
-//           res.status(500).json({ message: 'Error updating ratings_reviews' });
-//           return;
-//         }
-
-//         // Check if the update was successful
-//         if (updateResult.affectedRows > 0) {
-//           res.status(201).json({ message: 'Review and rating posted successfully' });
-//         } else {
-//           res.status(404).json({ message: 'User or product not found' });
-//         }
-//       });
-//     });
-//   });
-
 
 app.post('/review', (req, res) => {
   const { user_id, product_name, rating, review } = req.body;
@@ -89,25 +44,7 @@ app.post('/review', (req, res) => {
 
 
 
-// // ratings.post('/rating-review',async(req,res)=>{
-//     try{
-//         const {user_id, ratings_reviews } = req.body;
-//         const sql = 'INSERT INTO onelove.rating_review(user_id, ratings_reviews) VALUES(?, ?)';
-//         const values = [user_id, JSON.stringify(ratings_reviews)]
 
-//         const [result] = await db.query(sql,values);
-//         res.status(200).json({
-//             data: result,
-//             message: "Data posted"
-//         });
-
-//     }catch(err){
-//         console.error('Error posting data:', err.message);
-//         res.status(400).json({
-//             message: err
-//         });
-//     }
-// });
 
 
 // ratings.post('/rating-review', async (req, res) => {

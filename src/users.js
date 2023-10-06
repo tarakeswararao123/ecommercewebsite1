@@ -5,6 +5,8 @@ app.use(express.json())
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { request } = require('../app');
+const Redis = require("ioredis");
+const redisClient = new Redis();
 
 
 
@@ -57,6 +59,12 @@ app.post("/login", async (req, res) => {
                 if (isPasswordValid) {
                     const payload = { user_mobilenumber: user_mobilenumber };
                     const jwttoken = jwt.sign(payload, "token"); // Replace with your secret key
+                    await redisClient.set(
+                        "authorizationToken",
+                        jwttoken,
+                        "EX",
+                        1800
+                      );
                     res.send({ jwttoken });
                 } else {
                     res.status(400).send("Incorrect password");
